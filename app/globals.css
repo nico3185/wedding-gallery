@@ -234,6 +234,64 @@ body::after {
   50% { opacity: 1; }
 }
 
+/* ─── Basque Cross (Lauburu) patterns ─────────────────────────── */
+.lauburu-accent {
+  color: var(--gold);
+  opacity: 0.4;
+  margin: 0 8px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Txuleta-inspired striped accent (Basque flag pattern) */
+.txuleta-stripe {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--accent-red) 0px,
+    var(--accent-red) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  height: 3px;
+  width: 100%;
+  opacity: 0.3;
+}
+
+/* Basque cross grid background pattern */
+.basque-grid {
+  background-image: 
+    linear-gradient(90deg, transparent 24%, rgba(212,146,42,.05) 25%, rgba(212,146,42,.05) 26%, transparent 27%, transparent 74%, rgba(212,146,42,.05) 75%, rgba(212,146,42,.05) 76%, transparent 77%, transparent),
+    linear-gradient(0deg, transparent 24%, rgba(212,146,42,.05) 25%, rgba(212,146,42,.05) 26%, transparent 27%, transparent 74%, rgba(212,146,42,.05) 75%, rgba(212,146,42,.05) 76%, transparent 77%, transparent);
+  background-size: 60px 60px;
+}
+
+/* Ornamental corner accent - Basque inspired */
+.corner-ornament {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  opacity: 0.15;
+}
+
+.corner-ornament::before,
+.corner-ornament::after {
+  content: '';
+  position: absolute;
+  background: var(--gold);
+}
+
+.corner-ornament::before {
+  width: 100%;
+  height: 2px;
+  top: 12px;
+}
+
+.corner-ornament::after {
+  width: 2px;
+  height: 100%;
+  left: 12px;
+}
+
 /* ─── Gallery items ──────────────────────────────────────────────── */
 .photo-card {
   position: relative;
@@ -314,12 +372,17 @@ body::after {
 
 /* ─── Scroll reveal ──────────────────────────────────────────────── */
 .reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-fade {
   opacity: 0;
   transform: translateY(28px);
   transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1),
               transform 0.8s cubic-bezier(0.22,1,0.36,1);
 }
-.reveal.visible {
+.reveal-fade.visible {
   opacity: 1;
   transform: translateY(0);
 }
@@ -424,3 +487,11 @@ body::after {
 /* ─── Masonry ────────────────────────────────────────────────────── */
 .masonry { display: flex; gap: 8px; }
 .masonry-col { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+
+/* ─── Image loading optimization ─────────────────────────────────── */
+/* Images are displayed using Next.js Image component with fill prop */
+/* Ensure photo cards contain painted content properly */
+
+/* ─── Flow layout - organic, artistic gallery ────────────────────── */
+/* Already handled by grid CSS in component, but add decorative elements */
+

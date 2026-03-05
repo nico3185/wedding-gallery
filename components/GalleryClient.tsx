@@ -13,6 +13,8 @@ import "yet-another-react-lightbox/plugins/counter.css";
 import "yet-another-react-lightbox/plugins/thumbnails.css";
 import type { MediaItem } from "@/lib/r2";
 import { useReveal } from "@/lib/useReveal";
+import { BookMode } from "@/components/BookMode";
+import Lauburu from "@/components/Lauburu";
 
 // ─── Live Photo card ──────────────────────────────────────────────────────────
 function PhotoCard({
@@ -51,9 +53,9 @@ function PhotoCard({
       >
         <video
           src={item.url}
-          className="w-full h-full object-cover opacity-70"
+          className="w-full h-full object-cover"
           muted playsInline
-          style={{ height: "100%", width: "100%" }}
+          style={{ height: "100%", width: "100%", display: "block" }}
         />
         <div className="play-btn">
           <div className="play-circle">
@@ -69,20 +71,27 @@ function PhotoCard({
   return (
     <div
       className={`photo-card reveal ${className}`}
-      style={style}
+      style={{
+        ...style,
+        position: "relative",
+        width: "100%",
+        height: "100%",
+      }}
       onClick={onClick}
       onMouseEnter={activateLive}
       onMouseLeave={deactivateLive}
       onTouchStart={activateLive}
       onTouchEnd={deactivateLive}
     >
-      <Image
+      <img
         src={item.url}
         alt=""
-        fill
-        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-        className="object-cover"
-        loading="lazy"
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          display: "block",
+        }}
       />
       {item.livePhotoUrl && (
         <>
@@ -112,15 +121,16 @@ const RATIOS = [
   { paddingBottom: "100%" }, // square
 ];
 
-type Layout = "masonry" | "mixed" | "grid";
+type Layout = "flow" | "mixed" | "grid";
 
 // ─── Main gallery ─────────────────────────────────────────────────────────────
 export default function GalleryClient() {
   const [allMedia, setAllMedia] = useState<MediaItem[]>([]);
   const [albums, setAlbums] = useState<string[]>(["all"]);
   const [activeAlbum, setActiveAlbum] = useState("all");
-  const [layout, setLayout] = useState<Layout>("mixed");
+  const [layout, setLayout] = useState<Layout>("flow");
   const [lightboxIdx, setLightboxIdx] = useState(-1);
+  const [bookModeOpen, setBookModeOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const revealRef = useReveal();
 
@@ -135,6 +145,16 @@ export default function GalleryClient() {
       })
       .catch(console.error);
   }, []);
+
+  // Prevent body scroll when book mode is open
+  useEffect(() => {
+    if (bookModeOpen) {
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, [bookModeOpen]);
 
   const filtered = activeAlbum === "all"
     ? allMedia
@@ -261,8 +281,56 @@ export default function GalleryClient() {
     );
   }
 
+  // ─── Flow: organic, artistic masonry with variable aspect ratios ──────────
+  function Flow() {
+    const naturalRatios = [
+      { paddingBottom: "142%" }, // tall portrait
+      { paddingBottom: "85%" },  // wide landscape
+      { paddingBottom: "100%" }, // square
+      { paddingBottom: "125%" }, // portrait
+      { paddingBottom: "90%" },  // landscape
+      { paddingBottom: "110%" }, // slightly tall portrait
+      { paddingBottom: "95%" },  // nearly square landscape
+      { paddingBottom: "130%" }, // tall portrait
+      { paddingBottom: "88%" },  // landscape
+    ];
+
+    return (
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+        gap: "12px",
+        gridAutoRows: "auto",
+      }}>
+        {filtered.map((item, i) => {
+          const ratio = naturalRatios[i % naturalRatios.length];
+          return (
+            <div
+              key={item.key}
+              className="reveal"
+              style={{
+                position: "relative",
+                ...ratio,
+                transitionDelay: `${(i % 6) * 40}ms`,
+              }}
+            >
+              <PhotoCard
+                item={item}
+                onClick={() => setLightboxIdx(i)}
+                className="absolute inset-0"
+              />
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <div style={{ background: "var(--bg)", minHeight: "100dvh" }}>
+      {/* Book Mode Overlay */}
+      {bookModeOpen && <BookMode media={filtered} onClose={() => setBookModeOpen(false)} />}
+
       {/* ─── Sticky header ──────────────────────────────────────────────────── */}
       <header
         className="sticky top-0 z-50 safe-top"
@@ -280,12 +348,24 @@ export default function GalleryClient() {
             Aña <span style={{ fontStyle: "italic", color: "var(--soft)" }}>&</span> François
           </a>
 
-          {/* Layout toggle */}
+          {/* Layout toggle + Book mode */}
           <div className="flex gap-0 rounded-sm overflow-hidden"
                style={{ border: "1px solid var(--soft)" }}>
-            {(["masonry", "mixed", "grid"] as Layout[]).map((m) => (
-              <button key={m} onClick={() => setLayout(m)} className={`layout-btn ${layout === m ? "active" : ""}`}>
-                {m === "masonry" ? "≋" : m === "mixed" ? "⊞" : "⊡"}
+            <button
+              onClick={() => setBookModeOpen(true)}
+              className={`layout-btn ${bookModeOpen ? "active" : ""}`}
+              title="Book Mode · Liburuaren Modua"
+            >
+              📖
+            </button>
+            {(["flow", "mixed", "grid"] as Layout[]).map((m) => (
+              <button
+                key={m}
+                onClick={() => setLayout(m)}
+                className={`layout-btn ${layout === m && !bookModeOpen ? "active" : ""}`}
+                title={m === "flow" ? "Flow Mode · Fluxu Modua" : m === "mixed" ? "Mixed Layout" : "Grid"}
+              >
+                {m === "flow" ? "≈" : m === "mixed" ? "⊞" : "⊡"}
               </button>
             ))}
           </div>
@@ -307,6 +387,29 @@ export default function GalleryClient() {
 
       {/* ─── Gallery ────────────────────────────────────────────────────────── */}
       <main className="max-w-screen-xl mx-auto px-3 py-6" ref={revealRef}>
+        {/* Gallery intro section */}
+        <div className="mb-12 text-center">
+          <h2 className="display" style={{
+            fontSize: "clamp(2.5rem, 8vw, 4rem)",
+            color: "var(--gold)",
+            marginBottom: "1rem",
+            letterSpacing: "-0.02em"
+          }}>
+            Galeria · Galeria
+          </h2>
+          <div className="txuleta-stripe" style={{
+            maxWidth: "240px",
+            margin: "0 auto 2rem"
+          }} />
+          <p className="display-italic" style={{
+            color: "var(--muted)",
+            fontSize: "1rem",
+            opacity: 0.8
+          }}>
+            Moments précieux · Momentu bereziak
+          </p>
+        </div>
+
         {loading ? (
           <div className="flex flex-col items-center justify-center py-40 gap-5">
             <div className="w-8 h-8 rounded-full border-t-2 border-r-2 animate-spin"
@@ -339,22 +442,47 @@ export default function GalleryClient() {
               )}
             </div>
 
+            {layout === "flow"    && <Flow />}
             {layout === "mixed"   && <Mixed />}
-            {layout === "masonry" && <Masonry />}
             {layout === "grid"    && <Grid />}
           </>
         )}
       </main>
 
       {/* ─── Footer ─────────────────────────────────────────────────────────── */}
-      <footer className="py-12 text-center safe-bottom"
+      <footer className="py-16 text-center safe-bottom"
               style={{ borderTop: "1px solid var(--soft)" }}>
-        <p className="display-italic" style={{ color: "var(--muted)", fontSize: "1.1rem" }}>
-          Aña &amp; François
-        </p>
-        <p className="label mt-2" style={{ color: "var(--soft)", fontSize: "0.55rem" }}>
-          Elena &amp; Bixente · 5 mars 2026
-        </p>
+        <div className="max-w-screen-xl mx-auto px-4">
+          {/* Decorative line */}
+          <div className="txuleta-stripe mb-6" style={{ maxWidth: "200px", margin: "0 auto 2rem" }} />
+          
+          <p className="display shimmer-text" style={{ fontSize: "1.8rem", marginBottom: "8px" }}>
+            Aña &amp; François
+          </p>
+          <p className="display-italic" style={{ color: "var(--gold)", fontSize: "1rem", marginBottom: "1.5rem" }}>
+            Elena &amp; Bixente
+          </p>
+          
+          <p className="label" style={{ color: "var(--soft)", fontSize: "0.55rem", letterSpacing: "0.16em", marginBottom: "2rem" }}>
+            5 MARS 2026 · 2026KO MARTXOAREN 5A
+          </p>
+          
+          {/* Bilingual footer text */}
+          <div className="space-y-3">
+            <p className="display-italic" style={{ color: "var(--muted)", fontSize: "0.9rem", opacity: 0.7 }}>
+              Merci d'être venus celebrer avec nous · Eskerrik asko geurekin ospatzera etorri zarenean
+            </p>
+            
+            {/* Made with love */}
+            <div className="flex items-center justify-center gap-2">
+              <span style={{ color: "var(--accent-red)", fontSize: "1.2rem" }}>♥</span>
+              <p className="label" style={{ color: "var(--gold)", fontSize: "0.6rem", letterSpacing: "0.12em" }}>
+                MADE WITH LOVE · MAITASUNEZ EGINA
+              </p>
+              <span style={{ color: "var(--accent-red)", fontSize: "1.2rem" }}>♥</span>
+            </div>
+          </div>
+        </div>
       </footer>
 
       {/* ─── Lightbox ───────────────────────────────────────────────────────── */}
