@@ -106,7 +106,9 @@ status:
 
 # Controls
 kill:
-	@killall -9 node npm 2>/dev/null || true
+	@echo "🛑 Stopping servers..."
+	@ps aux | grep -E 'node|npm|next' | grep -v grep | awk '{print $$2}' | xargs kill -9 2>/dev/null || true
+	@lsof -i :3000 -i :3001 2>/dev/null | grep LISTEN | awk '{print $$2}' | xargs kill -9 2>/dev/null || true
 	@echo "✓ All Node.js/npm servers stopped"
 
 restart: kill dev
