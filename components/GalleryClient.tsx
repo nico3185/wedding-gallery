@@ -129,10 +129,21 @@ export default function GalleryClient() {
   const [albums, setAlbums] = useState<string[]>(["all"]);
   const [activeAlbum, setActiveAlbum] = useState("all");
   const [layout, setLayout] = useState<Layout>("flow");
+  const [previousLayout, setPreviousLayout] = useState<Layout>("flow");
   const [lightboxIdx, setLightboxIdx] = useState(-1);
   const [bookModeOpen, setBookModeOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const revealRef = useReveal();
+
+  const openBookMode = useCallback(() => {
+    setPreviousLayout(layout);
+    setBookModeOpen(true);
+  }, [layout]);
+
+  const closeBookMode = useCallback(() => {
+    setBookModeOpen(false);
+    setLayout(previousLayout);
+  }, [previousLayout]);
 
   useEffect(() => {
     fetch("/api/media")
@@ -329,7 +340,7 @@ export default function GalleryClient() {
   return (
     <div style={{ background: "var(--bg)", minHeight: "100dvh" }}>
       {/* Book Mode Overlay */}
-      {bookModeOpen && <BookMode media={filtered} onClose={() => setBookModeOpen(false)} />}
+      {bookModeOpen && <BookMode media={filtered} onClose={closeBookMode} />}
 
       {/* ─── Sticky header ──────────────────────────────────────────────────── */}
       <header
@@ -352,7 +363,7 @@ export default function GalleryClient() {
           <div className="flex gap-0 rounded-sm overflow-hidden"
                style={{ border: "1px solid var(--soft)" }}>
             <button
-              onClick={() => setBookModeOpen(true)}
+              onClick={() => bookModeOpen ? closeBookMode() : openBookMode()}
               className={`layout-btn ${bookModeOpen ? "active" : ""}`}
               title="Book Mode · Liburuaren Modua"
             >

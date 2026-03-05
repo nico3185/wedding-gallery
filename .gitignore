@@ -7,6 +7,8 @@ node_modules/
 *.jpg
 *.jpeg
 *.mov
+*.HEIC
+*.xmp
 
 # testing
 /coverage

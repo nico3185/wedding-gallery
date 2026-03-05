@@ -126,10 +126,30 @@ export function BookMode({
       {/* Close button */}
       <button
         onClick={onClose}
-        className="absolute top-4 right-6 z-50 text-amber-600 hover:text-amber-400 transition-colors"
-        style={{ opacity: 0.8, fontSize: "2rem" }}
+        className="absolute top-4 right-6 z-50 label flex items-center gap-2 transition-all"
+        style={{
+          background: "rgba(26,15,8,0.75)",
+          border: "1px solid var(--gold)",
+          color: "var(--gold)",
+          padding: "8px 16px",
+          borderRadius: "2px",
+          backdropFilter: "blur(8px)",
+          cursor: "pointer",
+          letterSpacing: "0.14em",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "var(--gold)";
+          e.currentTarget.style.color = "var(--deep)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "rgba(26,15,8,0.75)";
+          e.currentTarget.style.color = "var(--gold)";
+        }}
       >
-        ✕
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0 }}>
+          <path d="M1 1L11 11M11 1L1 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+        Fermer · Itxi
       </button>
 
       {/* Book container */}
@@ -153,7 +173,7 @@ export function BookMode({
               width: "45%",
               aspectRatio: "3/4",
               transformStyle: "preserve-3d",
-              transform: `rotateY(${currentPage === 0 ? 0 : -35}deg)`,
+              transform: `rotateY(${currentPage === 0 ? 0 : 15}deg)`,
               transition: isFlipping ? "transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)" : "none",
               transformOrigin: "right center",
               background: "linear-gradient(to right, #d9cfc0 0%, #e8ddd0 100%)",
@@ -242,7 +262,7 @@ export function BookMode({
               width: "45%",
               aspectRatio: "3/4",
               transformStyle: "preserve-3d",
-              transform: `rotateY(${currentPage === pages.length - 1 ? 0 : 35}deg)`,
+              transform: `rotateY(${currentPage === pages.length - 1 ? 0 : -15}deg)`,
               transition: isFlipping ? "transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)" : "none",
               transformOrigin: "left center",
               background: "linear-gradient(to right, #e8ddd0 0%, #d9cfc0 100%)",
