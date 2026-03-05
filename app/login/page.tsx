@@ -9,7 +9,9 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const params = useSearchParams();
-  const from = params.get("from") ?? "/";
+  const rawFrom = params.get("from") ?? "/";
+  // ensure the redirect stays within the app
+  const from = rawFrom.startsWith("/") && !rawFrom.startsWith("//") ? rawFrom : "/";
 
   async function submit() {
     if (!pw) return;
@@ -44,7 +46,9 @@ function LoginForm() {
         <div className="anim-fade d4 ember-line my-8" />
         <div className="anim-rise d4 space-y-3">
           <input
-            type="password" value={pw}
+            type="password"
+            autoComplete="current-password"
+            value={pw}
             onChange={(e) => setPw(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && submit()}
             placeholder="Mot de passe · Pasahitza"

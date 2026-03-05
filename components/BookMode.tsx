@@ -9,7 +9,8 @@ import { useState, useCallback, useEffect } from "react";
 import type { MediaItem } from "@/lib/r2";
 
 // Helper to check if a media item is a video
-const isVideo = (item?: MediaItem) => item?.url.endsWith('.mov');
+const isVideo = (item?: MediaItem) =>
+  /\.(mov|mp4|webm|ogg)$/i.test(item?.url ?? "");
 
 // Reorganize media to prevent consecutive videos on the same spread
 const organizePagesLogically = (items: MediaItem[]) => {
@@ -160,7 +161,7 @@ export function BookMode({
           style={{
             perspective: "1200px",
             width: "100%",
-            height: "100%",
+            maxHeight: "80vh",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -170,10 +171,12 @@ export function BookMode({
           <div
             className="relative"
             style={{
-              width: "45%",
+              width: "clamp(120px, 42vw, 420px)",
               aspectRatio: "3/4",
               transformStyle: "preserve-3d",
-              transform: `rotateY(${currentPage === 0 ? 0 : 15}deg)`,
+              transform: isFlipping
+                ? `rotateY(${currentPage === 0 ? 0 : 15}deg)`
+                : "rotateY(0deg)",
               transition: isFlipping ? "transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)" : "none",
               transformOrigin: "right center",
               background: "linear-gradient(to right, #d9cfc0 0%, #e8ddd0 100%)",
@@ -249,7 +252,7 @@ export function BookMode({
           <div
             style={{
               width: "8px",
-              height: "100%",
+              alignSelf: "stretch",
               background: "linear-gradient(90deg, rgba(0,0,0,0.3), transparent, rgba(0,0,0,0.3))",
               flexShrink: 0,
             }}
@@ -259,10 +262,12 @@ export function BookMode({
           <div
             className="relative"
             style={{
-              width: "45%",
+              width: "clamp(120px, 42vw, 420px)",
               aspectRatio: "3/4",
               transformStyle: "preserve-3d",
-              transform: `rotateY(${currentPage === pages.length - 1 ? 0 : -15}deg)`,
+              transform: isFlipping
+                ? `rotateY(${currentPage === pages.length - 1 ? 0 : -15}deg)`
+                : "rotateY(0deg)",
               transition: isFlipping ? "transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)" : "none",
               transformOrigin: "left center",
               background: "linear-gradient(to right, #e8ddd0 0%, #d9cfc0 100%)",
@@ -379,12 +384,7 @@ export function BookMode({
         </button>
       </div>
 
-      {/* Keyboard navigation */}
-      <style>{`
-        @media (max-width: 768px) {
-          .book-spread { width: 90vw; }
-        }
-      `}</style>
+
     </div>
   );
 }

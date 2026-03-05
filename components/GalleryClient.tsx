@@ -175,16 +175,25 @@ export default function GalleryClient() {
   useEffect(() => {
     const el = revealRef.current;
     if (!el) return;
-    // Small timeout to let DOM update
+    let io: IntersectionObserver;
+
     const t = setTimeout(() => {
-      const io = new IntersectionObserver(
-        (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("visible"); io.unobserve(e.target); } }),
+      io = new IntersectionObserver(
+        (entries) => entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("visible");
+            io.unobserve(e.target);
+          }
+        }),
         { threshold: 0.05 }
       );
       el.querySelectorAll(".reveal:not(.visible)").forEach((c) => io.observe(c));
-      return () => io.disconnect();
     }, 50);
-    return () => clearTimeout(t);
+
+    return () => {
+      clearTimeout(t);
+      io?.disconnect();
+    };
   }, [filtered]);
 
   const slides = filtered.map((item) =>
@@ -195,28 +204,15 @@ export default function GalleryClient() {
 
   // ─── Masonry ────────────────────────────────────────────────────────────────
   function Masonry() {
-    const cols: MediaItem[][] = [[], [], []];
-    filtered.forEach((item, i) => cols[i % 3].push(item));
-    const baseIdx = [0, 0, 0];
-
     return (
-      <div className="masonry">
-        {cols.map((col, ci) => (
-          <div key={ci} className="masonry-col">
-            {col.map((item, ri) => {
-              const gi = ci + ri * 3;
-              const ratio = RATIOS[gi % RATIOS.length];
-              return (
-                <div key={item.key} className="relative" style={{ paddingBottom: ratio.paddingBottom }}>
-                  <PhotoCard
-                    item={item}
-                    onClick={() => setLightboxIdx(gi)}
-                    className="absolute inset-0"
-                    style={{ transitionDelay: `${(ri % 4) * 60}ms` }}
-                  />
-                </div>
-              );
-            })}
+      <div style={{ columns: "2 220px", gap: "8px" }}>
+        {filtered.map((item, i) => (
+          <div key={item.key} style={{ breakInside: "avoid", marginBottom: "8px" }}>
+            <PhotoCard
+              item={item}
+              onClick={() => setLightboxIdx(i)}
+              className="reveal"
+            />
           </div>
         ))}
       </div>
@@ -230,6 +226,18 @@ export default function GalleryClient() {
     const mCols: MediaItem[][] = [[], [], []];
     masonry.forEach((item, i) => mCols[i % 3].push(item));
 
+    const ratios = [
+      { aspectRatio: "4/5" },
+      { aspectRatio: "16/9" },
+      { aspectRatio: "1/1" },
+      { aspectRatio: "4/5" },
+      { aspectRatio: "3/2" },
+      { aspectRatio: "5/6" },
+      { aspectRatio: "16/10" },
+      { aspectRatio: "4/5" },
+      { aspectRatio: "3/2" },
+    ];
+
     return (
       <div className="space-y-2">
         <div className="masonry">
@@ -237,9 +245,9 @@ export default function GalleryClient() {
             <div key={ci} className="masonry-col">
               {col.map((item, ri) => {
                 const gi = ci + ri * 3;
-                const ratio = RATIOS[gi % RATIOS.length];
+                const ratio = ratios[gi % ratios.length];
                 return (
-                  <div key={item.key} className="relative" style={{ paddingBottom: ratio.paddingBottom }}>
+                  <div key={item.key} className="relative" style={ratio}>
                     <PhotoCard
                       item={item}
                       onClick={() => setLightboxIdx(gi)}
@@ -258,7 +266,7 @@ export default function GalleryClient() {
             <div className="ember-line my-6" />
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
               {grid.map((item, i) => (
-                <div key={item.key} className="relative" style={{ paddingBottom: "100%" }}>
+                <div key={item.key} className="relative" style={{ aspectRatio: "1/1" }}>
                   <PhotoCard
                     item={item}
                     onClick={() => setLightboxIdx(9 + i)}
@@ -295,15 +303,15 @@ export default function GalleryClient() {
   // ─── Flow: organic, artistic masonry with variable aspect ratios ──────────
   function Flow() {
     const naturalRatios = [
-      { paddingBottom: "142%" }, // tall portrait
-      { paddingBottom: "85%" },  // wide landscape
-      { paddingBottom: "100%" }, // square
-      { paddingBottom: "125%" }, // portrait
-      { paddingBottom: "90%" },  // landscape
-      { paddingBottom: "110%" }, // slightly tall portrait
-      { paddingBottom: "95%" },  // nearly square landscape
-      { paddingBottom: "130%" }, // tall portrait
-      { paddingBottom: "88%" },  // landscape
+      { aspectRatio: "4/5" },
+      { aspectRatio: "16/9" },
+      { aspectRatio: "1/1" },
+      { aspectRatio: "4/5" },
+      { aspectRatio: "3/2" },
+      { aspectRatio: "5/6" },
+      { aspectRatio: "16/10" },
+      { aspectRatio: "4/5" },
+      { aspectRatio: "3/2" },
     ];
 
     return (

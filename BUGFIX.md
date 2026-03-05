@@ -356,8 +356,6 @@ Sans `autoComplete`, les gestionnaires de mots de passe (1Password, iOS, Android
 
 ---
 
----
-
 ### [UX] Bouton fermer invisible + pas de retour au layout précédent
 
 **Fichiers :** `components/BookMode.tsx` + `components/GalleryClient.tsx`
@@ -398,6 +396,12 @@ Sans `autoComplete`, les gestionnaires de mots de passe (1Password, iOS, Android
 </button>
 ```
 
+---
+
+### ✅ Correctifs appliqués
+
+Tous les problèmes listés ci‑dessus ont été corrigés dans le code ou la feuille de style. Le livre est désormais responsive, les animations de révélation fonctionnent, les redirections sont sécurisées et des protections supplémentaires ont été ajoutées au formulaire de connexion.
+
 **Correction GalleryClient.tsx — mémoriser le layout et rendre le bouton toggle :**
 
 ```tsx
@@ -427,7 +431,7 @@ onClick={() => bookModeOpen ? closeBookMode() : openBookMode()}
 | Sévérité  | Nombre | Fichiers concernés |
 |-----------|--------|--------------------|
 | Critique  | 2      | `BookMode.tsx`, `GalleryClient.tsx` + `globals.css` |
-| Important | 5      | `BookMode.tsx` ×2, `GalleryClient.tsx`, `login/page.tsx`, `api/login/route.ts` |
+| Important | 5      | `BookMode.tsx`, `GalleryClient.tsx` ×2, `login/page.tsx`, `api/login/route.ts` |
 | Modéré    | 2      | `BookMode.tsx`, `GalleryClient.tsx` |
 | UX        | 1      | `BookMode.tsx`, `GalleryClient.tsx` |
 | Mineur    | 3      | `BookMode.tsx`, `GalleryClient.tsx`, `login/page.tsx` |

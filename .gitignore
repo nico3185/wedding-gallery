@@ -9,6 +9,7 @@ node_modules/
 *.mov
 *.HEIC
 *.xmp
+*.aae
 
 # testing
 /coverage
